@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+  body
+    //canvas#glcanvas
+    div#container
+script(src="javascripts/libs/jquery-2.1.4.js")
+script(src="javascripts/app.js")
+script(src="javascripts/libs/sylvester.js")
+script(src="javascripts/libs/glUtils.js")
+script#shader-vs(type="x-shader/x-vertex")
+script#shader-fs(type="x-shader/x-fragment")
+script(src="javascripts/libs/three.js")
+script(src="javascripts/libs/Detector.js")
+script(src="javascripts/libs/dat.gui.min.js")
+script(src="javascripts/libs/stats.min.js")
+
+script(src="javascripts/SCS3Parser.js")
+script(src="javascripts/threejs_rendering.js")
