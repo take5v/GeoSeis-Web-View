@@ -30,10 +30,10 @@ var SEISREN = (function (SEISREN) {
 		var gui = new dat.GUI();
 
 		var f1 = gui.addFolder('Camera');
-		f1.add(effectController, "zoomFactor", 0.1, 20).listen();
+		f1.add(effectController, "zoomFactor", 0.001, 20).listen();
 		var f2 = gui.addFolder('Seismo params');
-		f2.add(effectController, "stepX", 1, 100).listen();
-		f2.add(effectController, "stepY", 1, 100).listen();
+		f2.add(effectController, "stepX", 1, 500).listen();
+		f2.add(effectController, "stepY", 1, 500).listen();
 		f2.add(effectController, "zoomT", 0.001, 0.01).listen();
 		f2.open();
 	}
@@ -66,7 +66,6 @@ var SEISREN = (function (SEISREN) {
 		if (isMouseDown) {
 			camera.position.x = onMouseDownCameraPosition.x - (event.clientX - onMouseDownPosition.x);
 			camera.position.y = onMouseDownCameraPosition.y + (event.clientY - onMouseDownPosition.y);
-			console.log(camera.position);
 			SEISREN.render();
 		}
 	}
@@ -76,13 +75,13 @@ var SEISREN = (function (SEISREN) {
 
 		isMouseDown = false;
 
-		onMouseDownPosition.x = (event.clientX - onMouseDownPosition.x) * 0.5;
-		onMouseDownPosition.y = event.clientY - onMouseDownPosition.y;
+		onMouseDownPosition.x = (event.clientX - onMouseDownPosition.x) / camera.zoom;
+		onMouseDownPosition.y = (event.clientY - onMouseDownPosition.y) / camera.zoom;
 	}
 
 	function onWindowMouseWheel( event ) {
 		effectController.zoomFactor = event.wheelDeltaY > 0 ? camera.zoom * 1.1 : camera.zoom / 1.1;
-		effectController.zoomFactor = effectController.zoomFactor < 0.1 ? 0.1 : effectController.zoomFactor > 20 ? 20 : effectController.zoomFactor;
+		effectController.zoomFactor = effectController.zoomFactor < 0.001 ? 0.001 : effectController.zoomFactor > 20 ? 20 : effectController.zoomFactor;
 		SEISREN.render();
 	}
 
@@ -94,7 +93,7 @@ var SEISREN = (function (SEISREN) {
 		}
 
 		function generateData() {
-			var data = new Int16Array(discreteCount);
+			var data = new Array(discreteCount);
 			for (var i = 0; i < discreteCount; i++) {
 				data[i] = getRandomInt(minV, maxV);
 			}
@@ -102,14 +101,24 @@ var SEISREN = (function (SEISREN) {
 		}
 
 		for (var i = 0; i < traceCount; i++) {
-			var header = {
-
-			};
 			var data = generateData();
-			var trace = new SEISREN.SeisTrace(header, data);
-			seisData.addTrace(trace);
+			seisData.data = seisData.data.concat(data);
 		}
 		return seisData;
+	}
+
+	function loadData(url, callback) {
+		var xhr = new XMLHttpRequest();
+		xhr.responseType = "json";
+		xhr.open("get", url, true);
+		xhr.onreadystatechange = function (oEvent) {
+			if (xhr.readyState === 4) {
+				if (xhr.status === 200) {
+					callback(xhr.response);
+				}
+			}
+		};
+		xhr.send();
 	}
 
 	/*
@@ -120,31 +129,35 @@ var SEISREN = (function (SEISREN) {
 
 		container = document.getElementById( 'container' );
 
-		scene = new THREE.Scene();
+		var url = '/data';
+		loadData(url, function(seisData) {
+			scene = new THREE.Scene();
 
-		camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 0.1, 1000 );
-		camera.position.z = 1;
+			camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 0.1, 1000 );
+			camera.position.z = 1;
 
-		var seisData = generateSCS3(1000, 1000, -14046, 15427);
-		seisDisplayableModel = new SEISREN.SeisDisplayableModel(seisData);
-		seisDisplayableModel.init(seisData, effectController);
-		seisDisplayableModel.addToScene(scene);
 
-		renderer = new THREE.WebGLRenderer();
-		renderer.setSize(window.innerWidth, window.innerHeight);
-		document.body.appendChild(renderer.domElement);
-		renderer.render(scene, camera);
+			seisDisplayableModel = new SEISREN.SeisDisplayableModel(seisData);
+			seisDisplayableModel.init(seisData, effectController);
+			seisDisplayableModel.addToScene(scene);
 
-		initStats();
+			renderer = new THREE.WebGLRenderer({ antialiasing: true });
+			renderer.setClearColor(0xFFFFFF, 1);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+			renderer.render(scene, camera);
 
-		window.addEventListener( 'resize', onWindowResize );
+			initStats();
 
-		window.addEventListener( 'mousemove', onWindowMouseMove, false );
-		window.addEventListener( 'mousedown', onWindowMouseDown, false );
-		window.addEventListener( 'mouseup', onWindowMouseUp, false );
+			window.addEventListener( 'resize', onWindowResize );
 
-		window.addEventListener( 'mousewheel', onWindowMouseWheel, false );
+			window.addEventListener( 'mousemove', onWindowMouseMove, false );
+			window.addEventListener( 'mousedown', onWindowMouseDown, false );
+			window.addEventListener( 'mouseup', onWindowMouseUp, false );
 
+			window.addEventListener( 'mousewheel', onWindowMouseWheel, false );
+		});
+		//var seisData = generateSCS3(100, 100, -14046, 15427);
 	};
 
 	SEISREN.render = function() {
@@ -162,15 +175,15 @@ var SEISREN = (function (SEISREN) {
 	};
 
 
-	/**
-	 * [SeisTrace description]
-	 * @param {[json]} header [Parsed file header]
-	 * @param {[Int16Array]} data   [Parsed Int16Array]
-	 */
-	SEISREN.SeisTrace = function(header, data) {
-		this.header = header;
-		this.data = data;
-	};
+	// *
+	//  * [SeisTrace description]
+	//  * @param {[json]} header [Parsed file header]
+	//  * @param {[Int16Array]} data   [Parsed Int16Array]
+	 
+	// SEISREN.SeisTrace = function(header, data) {
+	// 	this.header = header;
+	// 	this.data = data;
+	// };
 
 	/**
 	 * [SeisData description]
@@ -180,7 +193,7 @@ var SEISREN = (function (SEISREN) {
 		this.maxV = max;
 		this.discreteCount = discrCount;
 		this.traceCount = traceCount;
-		// data is array of SeisTrace
+		// data is array of values (discrCount * traceCount) size
 		this.data = [];
 	};
 
@@ -188,13 +201,6 @@ var SEISREN = (function (SEISREN) {
 
 		constructor: SEISREN.SeisData,
 
-		addTrace: function(seisTrace) {
-			this.data.push(seisTrace);
-		},
-
-		dataArrayAt: function(seisNumber) {
-			return this.data[i].data;
-		}
 	};
 
 	/**
@@ -220,12 +226,18 @@ var SEISREN = (function (SEISREN) {
 				vertexShader: document.getElementById( 'shader-vs' ).textContent,
 				fragmentShader: document.getElementById( 'shader-fs' ).textContent
 			});
+			
+			// var material = new THREE.MeshBasicMaterial({ 
+			// 	color:0xFFFFFF
+			// }); 
+
 
 			for (var i = 0; i < this.seisData.traceCount; i++) {
 				var geometry = new THREE.BufferGeometry();
 				this.vertices[i] = new Float32Array(this.seisData.discreteCount * 3);
 				geometry.addAttribute('position', new THREE.BufferAttribute(this.vertices[i], 3));
 				this.lines[i] = new THREE.Line(geometry, material);
+				//this.lines[i] = new THREE.Mesh(geometry, material);
 			}
 
 			this.update();
@@ -238,7 +250,7 @@ var SEISREN = (function (SEISREN) {
 			for (var j = 0; j < this.seisData.traceCount; j++) {
 				for ( var i = 0; i < this.seisData.discreteCount; i++ )
 				{
-					var x = j * this.effectController.stepX - (this.seisData.data[j].data[i] * this.effectController.zoomT) - w05;
+					var x = j * this.effectController.stepX - (this.seisData.data[this.seisData.discreteCount*j+i] * this.effectController.zoomT) - w05;
 					var y = h05 - i * this.effectController.stepY;
 					this.vertices[j][ i*3 + 0 ] = x;
 					this.vertices[j][ i*3 + 1 ] = y;
