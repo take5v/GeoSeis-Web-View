@@ -2,24 +2,31 @@
 
 # Installation
 
-Clone repository to local folder
-
-`git clone https://github.com/take5v/GeoSeis-Web-View.git`
-
 Download nodejs from https://nodejs.org.
 
-Then run
-`npm install`
-
-
+Clone repository to the local folder
+```
+git clone https://github.com/take5v/GeoSeis-Web-View.git
+cd GeoSeis-Web-View
+npm install
+```
 
 # Running
 
-Running with nodejs:
-    node bin\www
-    
-Or nodemon:
-    nodemon bin\www
-    
-Or forever nodejs module:
-    forever -w bin\www
+Simply execute
+
+```
+node bin\www
+```
+
+or if you could use nodemon or forever for development
+
+```
+npm install -g nodemon
+nodemon bin\www
+```
+
+```
+npm install -g forever
+forever -w bin\www
+```
