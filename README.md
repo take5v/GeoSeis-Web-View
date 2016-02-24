@@ -1,6 +1,6 @@
 # GeoSeis-Web-View
 
-# Installation
+## Installation
 
 Download nodejs from https://nodejs.org.
 
@@ -11,7 +11,7 @@ cd GeoSeis-Web-View
 npm install
 ```
 
-# Running
+## Running
 
 Simply execute
 
