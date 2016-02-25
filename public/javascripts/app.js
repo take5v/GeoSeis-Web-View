@@ -11,6 +11,5 @@ $(document).ready(function() {
 			//SCS3.init();
 			//SCS3.animate();
 			SEISREN.init();
-			SEISREN.animate();
 		});
 });

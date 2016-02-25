@@ -156,6 +156,8 @@ var SEISREN = (function (SEISREN) {
 			window.addEventListener( 'mouseup', onWindowMouseUp, false );
 
 			window.addEventListener( 'mousewheel', onWindowMouseWheel, false );
+
+			SEISREN.animate();
 		});
 		//var seisData = generateSCS3(100, 100, -14046, 15427);
 	};
