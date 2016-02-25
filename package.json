@@ -14,6 +14,6 @@
     "jade": "~1.11.0",
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0",
-    "scs3reader_addon": "file:./native_modules/scs3reader_module_addon"
+    "scs3reader_addon": "https://github.com/take5v/GeoSeis-nodejs-scs3reader-module.git"
   }
 }
