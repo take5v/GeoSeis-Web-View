@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var scs3reader = require('../native_modules/scs3reader_module_addon/build/Release/scs3reader_addon');
+var scs3reader = require('scs3reader_addon/build/Release/scs3reader_addon');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -14,8 +14,7 @@ router.post('/', function(req, res, next) {
 });
 
 router.get('/data', function(req, res, next) {
-	//var url = "data/D190794.SCS3";
-	var url = '/Users/take5v/Repository/UUIP/nedra/GeoSeis-Web-View/public/data/D190794.SCS3';
+	var url = 'public/data/D190794.SCS3';
 	var parser = new scs3reader.Seismogram();
 	var seis = parser.parse(url);
 	res.send(seis);
