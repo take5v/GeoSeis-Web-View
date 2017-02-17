@@ -8,16 +8,7 @@ Clone repository to the local folder
 ```
 git clone https://github.com/take5v/GeoSeis-Web-View.git
 cd GeoSeis-Web-View
-```
-Install native c++  module scs3parser first
-```
-cd native_modules/scs3reader_module_addon
-npm install
-```
-Install all
-```
-cd ../..
-npm install
+npm i
 ```
 
 ## Running
