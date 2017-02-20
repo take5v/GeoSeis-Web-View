@@ -16,17 +16,17 @@ npm i
 Simply execute
 
 ```
-node bin\www
+node bin/www
 ```
 
 or if you could use nodemon or forever for development
 
 ```
 npm install -g nodemon
-nodemon bin\www
+nodemon bin/www
 ```
 
 ```
 npm install -g forever
-forever -w bin\www
+forever -w bin/www
 ```
